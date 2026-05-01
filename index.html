@@ -10,89 +10,49 @@
 
 <style>
 :root { --primary:#ff7a00; }
-
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background:#fff7f0;
-  margin:0;
-  padding:15px;
-}
-
-.container {
-  max-width:700px;
-  margin:auto;
-  background:white;
-  padding:20px;
-  border-radius:16px;
-}
-
-h1 {
-  text-align:center;
-  color:var(--primary);
-}
-
-.today {
-  text-align:center;
-  margin:10px 0;
-  font-weight:bold;
-  color:var(--primary);
-}
-
-.row {
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  border-bottom:1px solid #eee;
-}
-
-.input-item {
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-input {
-  flex:1;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-/* Splash */
-#splash {
-  position:fixed;
-  inset:0;
-  background:var(--primary);
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-  font-weight:bold;
-  z-index:9999;
-}
+body { font-family: 'Segoe UI'; background:#fff7f0; padding:15px; }
+.container { max-width:700px; margin:auto; background:#fff; padding:20px; border-radius:16px; }
+h1 { text-align:center; color:var(--primary); }
+.row { display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; }
+.today { text-align:center; font-weight:bold; color:var(--primary); margin:10px 0; }
+.input-item { display:flex; gap:10px; margin-top:10px; }
+input { flex:1; padding:10px; }
 </style>
 </head>
 
 <body>
 
-<div id="splash">KINGFOOD MART</div>
-
 <div class="container">
   <h1>TÍNH NGÀY CẦN RÚT</h1>
   <div class="today" id="todayBox"></div>
-
   <div id="result"></div>
   <div id="customList"></div>
 </div>
 
 <script>
-setTimeout(()=>{
-  document.getElementById('splash').style.display='none';
-},1200);
+let RULES = [];
+
+fetch('rules.json')
+  .then(res => res.json())
+  .then(data => {
+    RULES = data;
+    init();
+  });
 
 function formatDate(d){
   return d.toLocaleDateString('vi-VN');
+}
+
+function getMinus(a){
+  for(let r of RULES.rules){
+    if(a >= r.min && a <= r.max){
+      if(r.type === 'fixed') return r.value;
+      if(r.type === 'formula'){
+        return eval(r.value.replace('a', a));
+      }
+    }
+  }
+  return null;
 }
 
 function calcDate(a){
@@ -100,87 +60,62 @@ function calcDate(a){
   let tomorrow = new Date(today);
   tomorrow.setDate(today.getDate()+1);
 
-  if(a > 179) return "tui làm biến tính lắm. tự tính đi";
+  if(a > RULES.maxLimit) return RULES.overText;
+
+  let minus = getMinus(a);
+  if(minus === null) return "";
 
   let r = new Date(tomorrow);
-
-  // LOGIC FINAL
-  if(a === 4){
-    r.setDate(tomorrow.getDate() - 3);
-  } else {
-    r.setDate(tomorrow.getDate() - (a - 2));
-  }
+  r.setDate(tomorrow.getDate() - minus);
 
   return formatDate(r);
 }
 
 function renderToday(){
-  let t = new Date();
-  document.getElementById('todayBox').innerText =
-    "Hôm nay: " + formatDate(t);
+  todayBox.innerText = "Hôm nay: " + formatDate(new Date());
 }
 
 function renderDefault(){
   let days=[4,5,6,7,9,10,15];
-  let html='';
-
-  days.forEach(d=>{
-    html += `<div class="row">
+  result.innerHTML = days.map(d=>`
+    <div class="row">
       <span>${d} ngày</span>
       <strong>${calcDate(d)}</strong>
-    </div>`;
-  });
-
-  document.getElementById('result').innerHTML = html;
+    </div>
+  `).join('');
 }
 
 function addRow(){
-  let container = document.getElementById('customList');
-
-  let wrap = document.createElement('div');
+  let wrap=document.createElement('div');
   wrap.className='input-item';
 
-  let input = document.createElement('input');
+  let input=document.createElement('input');
   input.type='number';
-  input.placeholder='Nhập ngày...';
 
-  let result = document.createElement('div');
+  let result=document.createElement('div');
 
-  input.addEventListener('input', ()=>{
-    let a = parseInt(input.value);
-    if(!a){
-      result.innerText='';
-      return;
-    }
+  input.oninput=()=>{
+    let a=parseInt(input.value);
+    if(!a) return;
 
     result.innerText = calcDate(a);
 
-    if(container.lastChild === wrap){
-      addRow();
-    }
-  });
+    if(customList.lastChild === wrap) addRow();
+  }
 
-  wrap.appendChild(input);
-  wrap.appendChild(result);
-  container.appendChild(wrap);
+  wrap.append(input,result);
+  customList.appendChild(wrap);
 }
 
-renderToday();
-renderDefault();
-addRow();
+function init(){
+  renderToday();
+  renderDefault();
+  addRow();
+}
 
-// PWA + auto update
+// PWA
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js').then(reg=>{
-    reg.onupdatefound=()=>{
-      let newWorker=reg.installing;
-      newWorker.onstatechange=()=>{
-        if(newWorker.state==='installed' && navigator.serviceWorker.controller){
-          location.reload();
-        }
-      }
-    }
-  });
+  navigator.serviceWorker.register('service-worker.js');
 }
 </script>
 
