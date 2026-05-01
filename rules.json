@@ -1,0 +1,11 @@
+{
+  "rules": [
+    { "min": 4, "max": 5, "type": "fixed", "value": 3 },
+    { "min": 6, "max": 7, "type": "formula", "value": "a-2" },
+    { "min": 8, "max": 29, "type": "formula", "value": "a-3" },
+    { "min": 30, "max": 59, "type": "formula", "value": "a-4" },
+    { "min": 60, "max": 179, "type": "formula", "value": "a-7" }
+  ],
+  "maxLimit": 179,
+  "overText": "tui làm biến tính lắm. tự tính đi"
+}
