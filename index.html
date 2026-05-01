@@ -6,11 +6,10 @@
 <title>Tool Ngày Cần Rút</title>
 
 <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff7a00">
 
 <style>
-:root {
-  --primary: #ff7a00;
-}
+:root { --primary:#ff7a00; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -58,14 +57,29 @@ input {
   border-radius:8px;
   border:1px solid #ccc;
 }
+
+/* Splash */
+#splash {
+  position:fixed;
+  inset:0;
+  background:var(--primary);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:bold;
+  z-index:9999;
+}
 </style>
 </head>
 
 <body>
 
+<div id="splash">KINGFOOD MART</div>
+
 <div class="container">
   <h1>TÍNH NGÀY CẦN RÚT</h1>
-
   <div class="today" id="todayBox"></div>
 
   <div id="result"></div>
@@ -73,6 +87,10 @@ input {
 </div>
 
 <script>
+setTimeout(()=>{
+  document.getElementById('splash').style.display='none';
+},1200);
+
 function formatDate(d){
   return d.toLocaleDateString('vi-VN');
 }
@@ -84,18 +102,14 @@ function calcDate(a){
 
   if(a > 179) return "tui làm biến tính lắm. tự tính đi";
 
-  let offset = 0;
-
-  if(a === 4) return formatDate(tomorrow);
-  if([5,6,7].includes(a)) offset = 1;
-  if([9,10,15].includes(a)) offset = 2;
-
-  if(a>=8 && a<=29) offset=2;
-  if(a>=30 && a<=59) offset=3;
-  if(a>=60 && a<=179) offset=6;
-
   let r = new Date(tomorrow);
-  r.setDate(tomorrow.getDate() - a + offset);
+
+  // LOGIC FINAL
+  if(a === 4){
+    r.setDate(tomorrow.getDate() - 3);
+  } else {
+    r.setDate(tomorrow.getDate() - (a - 2));
+  }
 
   return formatDate(r);
 }
@@ -134,7 +148,10 @@ function addRow(){
 
   input.addEventListener('input', ()=>{
     let a = parseInt(input.value);
-    if(!a) return;
+    if(!a){
+      result.innerText='';
+      return;
+    }
 
     result.innerText = calcDate(a);
 
@@ -152,9 +169,18 @@ renderToday();
 renderDefault();
 addRow();
 
-/* PWA */
+// PWA + auto update
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js');
+  navigator.serviceWorker.register('service-worker.js').then(reg=>{
+    reg.onupdatefound=()=>{
+      let newWorker=reg.installing;
+      newWorker.onstatechange=()=>{
+        if(newWorker.state==='installed' && navigator.serviceWorker.controller){
+          location.reload();
+        }
+      }
+    }
+  });
 }
 </script>
 
