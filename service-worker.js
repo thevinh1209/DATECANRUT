@@ -1,15 +1,15 @@
-const CACHE_NAME = "rut-date-v2";
+const CACHE_NAME = "rut-date-v3";
 
-self.addEventListener("install", event => {
+self.addEventListener("install", e=>{
   self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
+self.addEventListener("activate", e=>{
   self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match("./index.html"))
+self.addEventListener("fetch", e=>{
+  e.respondWith(
+    fetch(e.request).catch(()=>caches.match("./index.html"))
   );
 });
