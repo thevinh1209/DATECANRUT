@@ -33,10 +33,7 @@ body {
   gap:8px;
 }
 
-h1 {
-  margin:0;
-  color:var(--primary);
-}
+h1 { margin:0; color:var(--primary); }
 
 .warning {
   cursor:pointer;
@@ -70,7 +67,7 @@ input {
   border:1px solid #ccc;
 }
 
-/* Popup */
+/* popup */
 #warningPopup {
   display:none;
   position:fixed;
@@ -98,7 +95,7 @@ button {
   color:white;
 }
 
-/* Splash */
+/* splash */
 #splash {
   position:fixed;
   inset:0;
@@ -133,7 +130,7 @@ button {
 
 </div>
 
-<!-- Popup -->
+<!-- popup -->
 <div id="warningPopup">
   <div class="popup-box">
     <p>
@@ -146,10 +143,10 @@ button {
 </div>
 
 <script>
-// Splash
+// splash
 setTimeout(()=>{ splash.style.display='none'; },1000);
 
-// Load rules
+// load rules
 let RULES = {};
 
 fetch('rules.json')
@@ -159,12 +156,12 @@ fetch('rules.json')
   init();
 });
 
-// Format date
+// format
 function formatDate(d){
   return d.toLocaleDateString('vi-VN');
 }
 
-// Get minus
+// get minus
 function getMinus(a){
   for(let r of RULES.rules){
     if(a >= r.min && a <= r.max){
@@ -177,7 +174,7 @@ function getMinus(a){
   return null;
 }
 
-// Main calc
+// calc
 function calcDate(a){
   let today = new Date();
   let tomorrow = new Date(today);
@@ -194,7 +191,7 @@ function calcDate(a){
   return formatDate(r);
 }
 
-// Render
+// render
 function renderToday(){
   todayBox.innerText = "Hôm nay: " + formatDate(new Date());
 }
@@ -215,7 +212,6 @@ function addRow(){
 
   let input=document.createElement('input');
   input.type='number';
-  input.placeholder='Nhập ngày...';
 
   let result=document.createElement('div');
 
@@ -235,7 +231,7 @@ function addRow(){
   customList.appendChild(wrap);
 }
 
-// Status
+// status
 function updateStatus(){
   if(navigator.onLine){
     statusBox.innerText = "🟢 Đang online";
@@ -249,7 +245,7 @@ function updateStatus(){
 window.addEventListener('online', updateStatus);
 window.addEventListener('offline', updateStatus);
 
-// Warning popup
+// warning
 warningBtn.onclick = ()=>{
   warningPopup.style.display = 'flex';
 }
@@ -258,7 +254,7 @@ function closeWarning(){
   warningPopup.style.display = 'none';
 }
 
-// Init
+// init
 function init(){
   renderToday();
   renderDefault();
@@ -266,17 +262,22 @@ function init(){
   updateStatus();
 }
 
-// PWA + auto update
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js').then(reg=>{
-    reg.onupdatefound=()=>{
-      let newWorker=reg.installing;
-      newWorker.onstatechange=()=>{
-        if(newWorker.state==='installed' && navigator.serviceWorker.controller){
-          location.reload();
+// PWA auto update
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').then(reg => {
+
+    reg.onupdatefound = () => {
+      const newWorker = reg.installing;
+
+      newWorker.onstatechange = () => {
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            location.reload();
+          }
         }
-      }
-    }
+      };
+    };
+
   });
 }
 </script>
