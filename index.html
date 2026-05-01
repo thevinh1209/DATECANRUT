@@ -26,9 +26,22 @@ body {
   border-radius:16px;
 }
 
+.header {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+}
+
 h1 {
-  text-align:center;
+  margin:0;
   color:var(--primary);
+}
+
+.warning {
+  cursor:pointer;
+  color:red;
+  font-size:20px;
 }
 
 .today, #statusBox {
@@ -57,6 +70,34 @@ input {
   border:1px solid #ccc;
 }
 
+/* Popup */
+#warningPopup {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.popup-box {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  max-width:320px;
+  text-align:center;
+}
+
+button {
+  margin-top:10px;
+  padding:8px 15px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:white;
+}
+
 /* Splash */
 #splash {
   position:fixed;
@@ -78,20 +119,37 @@ input {
 <div id="splash">KINGFOOD MART</div>
 
 <div class="container">
-  <h1>TÍNH NGÀY CẦN RÚT</h1>
+
+  <div class="header">
+    <h1>TÍNH NGÀY CẦN RÚT</h1>
+    <span class="warning" id="warningBtn">❗</span>
+  </div>
 
   <div class="today" id="todayBox"></div>
   <div id="statusBox"></div>
 
   <div id="result"></div>
   <div id="customList"></div>
+
+</div>
+
+<!-- Popup -->
+<div id="warningPopup">
+  <div class="popup-box">
+    <p>
+      Đây là tool tính ngày cần rút sử dụng nội bộ VH3.<br><br>
+      Việc sử dụng ngoài nội bộ VH3 là không khuyến khích.<br><br>
+      Các sai sót ngoài nội bộ VH3 được miễn trừ trách nhiệm.
+    </p>
+    <button onclick="closeWarning()">Đóng</button>
+  </div>
 </div>
 
 <script>
-setTimeout(()=>{
-  document.getElementById('splash').style.display='none';
-},1000);
+// Splash
+setTimeout(()=>{ splash.style.display='none'; },1000);
 
+// Load rules
 let RULES = {};
 
 fetch('rules.json')
@@ -101,10 +159,12 @@ fetch('rules.json')
   init();
 });
 
+// Format date
 function formatDate(d){
   return d.toLocaleDateString('vi-VN');
 }
 
+// Get minus
 function getMinus(a){
   for(let r of RULES.rules){
     if(a >= r.min && a <= r.max){
@@ -117,6 +177,7 @@ function getMinus(a){
   return null;
 }
 
+// Main calc
 function calcDate(a){
   let today = new Date();
   let tomorrow = new Date(today);
@@ -133,6 +194,7 @@ function calcDate(a){
   return formatDate(r);
 }
 
+// Render
 function renderToday(){
   todayBox.innerText = "Hôm nay: " + formatDate(new Date());
 }
@@ -173,20 +235,30 @@ function addRow(){
   customList.appendChild(wrap);
 }
 
+// Status
 function updateStatus(){
-  const el = document.getElementById('statusBox');
   if(navigator.onLine){
-    el.innerText = "🟢 Đang online";
-    el.style.color = "green";
+    statusBox.innerText = "🟢 Đang online";
+    statusBox.style.color = "green";
   }else{
-    el.innerText = "🟠 Đang offline";
-    el.style.color = "orange";
+    statusBox.innerText = "🟠 Đang offline";
+    statusBox.style.color = "orange";
   }
 }
 
 window.addEventListener('online', updateStatus);
 window.addEventListener('offline', updateStatus);
 
+// Warning popup
+warningBtn.onclick = ()=>{
+  warningPopup.style.display = 'flex';
+}
+
+function closeWarning(){
+  warningPopup.style.display = 'none';
+}
+
+// Init
 function init(){
   renderToday();
   renderDefault();
