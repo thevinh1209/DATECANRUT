@@ -143,10 +143,8 @@ button {
 </div>
 
 <script>
-// splash
 setTimeout(()=>{ splash.style.display='none'; },1000);
 
-// load rules
 let RULES = {};
 
 fetch('rules.json')
@@ -156,12 +154,10 @@ fetch('rules.json')
   init();
 });
 
-// format
 function formatDate(d){
   return d.toLocaleDateString('vi-VN');
 }
 
-// get minus
 function getMinus(a){
   for(let r of RULES.rules){
     if(a >= r.min && a <= r.max){
@@ -174,7 +170,6 @@ function getMinus(a){
   return null;
 }
 
-// calc
 function calcDate(a){
   let today = new Date();
   let tomorrow = new Date(today);
@@ -188,10 +183,12 @@ function calcDate(a){
   let r = new Date(tomorrow);
   r.setDate(tomorrow.getDate() - minus);
 
-  return formatDate(r);
+  let hsd = new Date(r);
+  hsd.setDate(r.getDate() + a);
+
+  return formatDate(r) + " (HSD: " + formatDate(hsd) + ")";
 }
 
-// render
 function renderToday(){
   todayBox.innerText = "Hôm nay: " + formatDate(new Date());
 }
@@ -231,7 +228,6 @@ function addRow(){
   customList.appendChild(wrap);
 }
 
-// status
 function updateStatus(){
   if(navigator.onLine){
     statusBox.innerText = "🟢 Đang online";
@@ -245,7 +241,6 @@ function updateStatus(){
 window.addEventListener('online', updateStatus);
 window.addEventListener('offline', updateStatus);
 
-// warning
 warningBtn.onclick = ()=>{
   warningPopup.style.display = 'flex';
 }
@@ -254,7 +249,6 @@ function closeWarning(){
   warningPopup.style.display = 'none';
 }
 
-// init
 function init(){
   renderToday();
   renderDefault();
@@ -262,7 +256,6 @@ function init(){
   updateStatus();
 }
 
-// PWA auto update
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js').then(reg => {
 
