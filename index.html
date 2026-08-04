@@ -50,8 +50,30 @@ h1 { margin:0; color:var(--primary); }
 .row {
   display:flex;
   justify-content:space-between;
+  align-items:center;
   padding:10px;
   border-bottom:1px solid #eee;
+}
+
+.value-box {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:4px;
+}
+
+.date-main {
+  font-weight:bold;
+  color:var(--primary);
+  font-size:16px;
+}
+
+.date-exp {
+  font-size:12px;
+  color:#c0392b;
+  background:#fdecea;
+  padding:2px 8px;
+  border-radius:6px;
 }
 
 .input-item {
@@ -186,7 +208,7 @@ function calcDate(a){
   let hsd = new Date(r);
   hsd.setDate(r.getDate() + a - 1);
 
-  return formatDate(r) + " (ngày hết hạn: " + formatDate(hsd) + ")";
+  return `<span class="date-main">${formatDate(r)}</span><span class="date-exp">Hết hạn: ${formatDate(hsd)}</span>`;
 }
 
 function renderToday(){
@@ -198,7 +220,7 @@ function renderDefault(){
   result.innerHTML = days.map(d=>`
     <div class="row">
       <span>${d} ngày</span>
-      <strong>${calcDate(d)}</strong>
+      <div class="value-box">${calcDate(d)}</div>
     </div>
   `).join('');
 }
@@ -211,15 +233,16 @@ function addRow(){
   input.type='number';
 
   let result=document.createElement('div');
+  result.className='value-box';
 
   input.oninput=()=>{
     let a=parseInt(input.value);
     if(!a){
-      result.innerText='';
+      result.innerHTML='';
       return;
     }
 
-    result.innerText = calcDate(a);
+    result.innerHTML = calcDate(a);
 
     if(customList.lastChild === wrap) addRow();
   }
