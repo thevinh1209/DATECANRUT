@@ -184,9 +184,9 @@ function calcDate(a){
   r.setDate(tomorrow.getDate() - minus);
 
   let hsd = new Date(r);
-  hsd.setDate(r.getDate() + a);
+  hsd.setDate(r.getDate() + a - 1);
 
-  return formatDate(r) + " (HSD: " + formatDate(hsd) + ")";
+  return formatDate(r) + " (ngày hết hạn: " + formatDate(hsd) + ")";
 }
 
 function renderToday(){
