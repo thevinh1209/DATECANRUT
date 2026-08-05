@@ -76,6 +76,22 @@ h1 { margin:0; color:var(--primary); }
   border-radius:6px;
 }
 
+.col-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  padding:0 10px;
+  margin-top:15px;
+  font-size:13px;
+  font-weight:bold;
+  color:#555;
+}
+
+.col-header-right {
+  text-align:right;
+  line-height:1.4;
+}
+
 .input-item {
   display:flex;
   gap:10px;
@@ -146,6 +162,11 @@ button {
 
   <div class="today" id="todayBox"></div>
   <div id="statusBox"></div>
+
+  <div class="col-header">
+    <span>Hạn sử dụng</span>
+    <span class="col-header-right">Ngày sản xuất cần rút<br>Ngày hết hạn tương ứng</span>
+  </div>
 
   <div id="result"></div>
   <div id="customList"></div>
